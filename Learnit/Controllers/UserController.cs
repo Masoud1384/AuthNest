@@ -21,29 +21,7 @@ namespace AuthNest.Controllers
         [Route("SignUp")]
         [AllowAnonymous]
         public async Task<Response<JWTResponse>> SignUpUser([FromBody] UserSignUpDto request)
-        {
-            return await _userAuth.SignUpUser(request);
-        }
+            => await _userAuth.SignUpUser(request);
 
-
-        [HttpPost]
-        [Route("Login")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Login([FromBody] UserLoginDto request)
-        {
-            var result = await _userAuth.LoginUser(request);
-            return Ok(new { AccessToken = result.JWT, RefreshToken = result.RefreshToken });
-        }
-
-        [HttpPost]
-        [Route("RefreshAccessToken")]
-        [AllowAnonymous]
-        public async Task<IActionResult> RefreshAccessToken([FromBody] UserRefreshAccessTokenDto request)
-        {
-            var authHeader = HttpContext.Request.Headers["Authorization"].ToString();
-            request.AccessToken = authHeader.StartsWith("Bearer ") ? authHeader.Substring("Bearer ".Length) : authHeader;
-            var result = await _userAuth.Refresh(request);
-            return Ok(new { AccessToken = result.AccessToken });
-        }
     }
 }

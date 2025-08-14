@@ -3,6 +3,7 @@ using Application.Dto.JWT;
 using Infrastructure;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -11,12 +12,12 @@ var builder = WebApplication.CreateBuilder(args);
 var jwtData = builder.Configuration.GetSection("JWTConfig").Adapt<JWTConfigMapperDto>();
 jwtData.SECRET_KEY = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? throw new Exception();
 builder.Services.AddAuthentication("Bearer")
-    .AddJwtBearer("Bearer", option =>
+    .AddJwtBearer("Bearer", options =>
     {
-        option.TokenValidationParameters = new TokenValidationParameters
+        options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtData.SECRET_KEY)),
+            IssuerSigningKey = new SymmetricSecurityKey(Base64UrlEncoder.DecodeBytes(jwtData.SECRET_KEY)),
             ValidIssuer = jwtData.Issuer,
             ValidateIssuer = true,
             ValidAudience = jwtData.Audience,

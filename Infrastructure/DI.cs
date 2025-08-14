@@ -2,15 +2,18 @@
 using Microsoft.Extensions.Configuration;
 using Application.IRepositories;
 using Infrastructure.Repositories;
+using Application.ICommonInterfaces;
+using Infrastructure.Security;
 
 namespace Infrastructure
 {
     public static class DI
     {
-        public static void AddInfrastructure(this IServiceCollection service, IConfiguration config)
+        public static void AddInfrastructure(this IServiceCollection services, IConfiguration config)
         {
-            service.AddScoped<IUserDataAccess, UserDataAccess>();
-            service.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IUserDataAccess, UserDataAccess>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped(typeof(IJWTManager<>), typeof(JWTManager<>));
         }
     }
 }

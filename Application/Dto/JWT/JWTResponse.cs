@@ -3,16 +3,14 @@
     public class JWTResponse
     {
         public string JWT { get; set; }
-        public string RefreshToken { get; set; }
         public JWTResponse()
         {
             
         }
 
-        public JWTResponse(string jWT, string refreshToken)
+        public JWTResponse(string jWT)
         {
             JWT = jWT;
-            RefreshToken = refreshToken;
         }
     }
 }

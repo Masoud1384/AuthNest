@@ -22,5 +22,13 @@ namespace Application.Utility
             response.ErrorMessage = message;
             return response;
         }
+        public static Response<T> Succeeded(T items,string message = "Done")
+        {
+            var response = new Response<T>();
+            response.Item = items;
+            response.IsSuccessed = true;
+            response.ErrorMessage = message;
+            return response;
+        }
     }
 }

@@ -32,7 +32,7 @@ namespace Application.Utility
                 }
                 catch
                 {
-                    return Response<JWTResponse>.Failure("SomethingWentWrong");
+                    return Response<JWTResponse>.Failure("InvalidEmail");
                 }
             }
 
