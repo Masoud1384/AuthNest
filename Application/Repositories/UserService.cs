@@ -20,6 +20,10 @@ namespace Application.Repositories
             if (user == null)
                 return Response<bool>.Failure("UserNotFound");
 
+            // there are better ways but this is the simplest one right now 
+            user.PhoneNumber = data.PhoneNumber;
+            user.Email = data.Email;
+
             await _unitOfWork.UserDataAccess.UpdateUser(user);
             var result = await _unitOfWork.SaveAllChanges();
             return result ? Response<bool>.Succeeded() : Response<bool>.Failure("SomethingWentWrong");

@@ -40,6 +40,7 @@ namespace Application.Repositories
             user.Role = Roles.User.ToString();
             await _uow.UserDataAccess.InsertUser(user);
             var saveResult = await _uow.SaveAllChanges();
+
             if (!saveResult)
                 return Response<JWTResponse>.Failure("SomethingWentWrong");
 
@@ -47,10 +48,11 @@ namespace Application.Repositories
             {
                 Audience = _config["JWTConfig:Audience"] ?? string.Empty,
                 Issuer = _config["JWTConfig:Issuer"] ?? string.Empty,
-                SECRET_KEY = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? string.Empty
+                ExpTime = Convert.ToInt32(_config["JWTConfig:ExpTime"]),
+                SECRET_KEY = JWTHelper.GetSecretKey()
             };
-
             var userDto = request.Adapt<UserDto>();
+            userDto.UserId = user.UserId;
             var accessToken = _jwt.GenerateToken(userDto, jwtConfig);
 
             return Response<JWTResponse>.Succeeded(accessToken);

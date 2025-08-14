@@ -1,30 +1,40 @@
 using Application;
 using Application.Dto.JWT;
+using Application.Utility;
 using Infrastructure;
 using Mapster;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var jwtData = builder.Configuration.GetSection("JWTConfig").Adapt<JWTConfigMapperDto>();
-jwtData.SECRET_KEY = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? throw new Exception();
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Base64UrlEncoder.DecodeBytes(jwtData.SECRET_KEY)),
-            ValidIssuer = jwtData.Issuer,
+            IssuerSigningKey = new SymmetricSecurityKey(JWTHelper.GetSecretKey().Bade64UrlDecode()),
+            ValidAlgorithms = new[] { SecurityAlgorithms.HmacSha256 },
+            ValidIssuer = builder.Configuration["JWTConfig:Issuer"],
             ValidateIssuer = true,
-            ValidAudience = jwtData.Audience,
+            ValidAudience = builder.Configuration["JWTConfig:Audience"],
             ValidateAudience = true,
             RequireExpirationTime = true,
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero,
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = ctx => {
+                Console.WriteLine("Auth failed: " + ctx.Exception);
+                return Task.CompletedTask;
+            },
+            OnChallenge = ctx => {
+                Console.WriteLine($"Challenge: {ctx.Error} - {ctx.ErrorDescription}");
+                return Task.CompletedTask;
+            }
         };
     });
 
@@ -46,6 +56,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+app.UseRouting();
+app.Use(async (ctx, next) =>
+{
+    var auth = ctx.Request.Headers.Authorization.ToString();
+    Console.WriteLine($"[AUTH HEADER] => '{auth}'");
+    await next();
+});
+
+
 
 if (app.Environment.IsDevelopment())
 {

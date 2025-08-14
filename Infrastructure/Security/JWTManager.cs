@@ -1,10 +1,10 @@
 ﻿using Application.Dto.JWT;
 using Application.ICommonInterfaces;
+using Application.Utility;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Infrastructure.Security
 {
@@ -14,23 +14,24 @@ namespace Infrastructure.Security
     {
         public JWTResponse GenerateToken(T dto, JWTConfigMapperDto config)
         {
-            if (string.IsNullOrWhiteSpace(config.SECRET_KEY) || Encoding.UTF8.GetBytes(config.SECRET_KEY).Length < 32)
-                throw new InvalidOperationException();
+            var bytes = config.SECRET_KEY.Bade64UrlDecode();
+            if (bytes.Length < 32)
+                throw new InvalidOperationException("InvalidException");
 
             var now = DateTime.UtcNow;
-            var expires = now.AddMinutes(30);
+            var expires = now.AddMinutes(config.ExpTime);
 
             var jwtClaims = new List<Claim>
-        {
+            {
             new Claim(JwtRegisteredClaimNames.Sub, dto.UserId.ToString()),
             new Claim(JwtRegisteredClaimNames.UniqueName, dto.UserName),
             new Claim("Role", dto.Role.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(JwtRegisteredClaimNames.Iat,
                 new DateTimeOffset(now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
-        };
+            };
 
-            var signingKey = new SymmetricSecurityKey(Base64UrlEncoder.DecodeBytes(config.SECRET_KEY));
+            var signingKey = new SymmetricSecurityKey(bytes);
 
             var creds = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
 
@@ -61,5 +62,7 @@ namespace Infrastructure.Security
                 .Trim('=');
             return token;
         }
+
+
     }
 }
