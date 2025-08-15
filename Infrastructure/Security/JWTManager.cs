@@ -25,7 +25,7 @@ namespace Infrastructure.Security
             {
             new Claim(JwtRegisteredClaimNames.Sub, dto.UserId.ToString()),
             new Claim(JwtRegisteredClaimNames.UniqueName, dto.UserName),
-            new Claim("Role", dto.Role.ToString()),
+            new Claim(ClaimTypes.Role, dto.Role.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(JwtRegisteredClaimNames.Iat,
                 new DateTimeOffset(now).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
