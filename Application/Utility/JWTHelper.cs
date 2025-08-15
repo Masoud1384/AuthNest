@@ -1,4 +1,7 @@
-﻿namespace Application.Utility
+﻿using Mapster.Utils;
+using System.IdentityModel.Tokens.Jwt;
+
+namespace Application.Utility
 {
     public static class JWTHelper
     {
@@ -15,6 +18,18 @@
         // i guess it's ok to do this 
         // this app is not built for production
         public static string GetSecretKey()
-            => Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? "e7f456f567e09eee352f29ce95b0d02fe257afa06a6cbdde8db31ef07749dff5";
+            => Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ??
+            "e7f456f567e09eee352f29ce95b0d02fe257afa06a6cbdde8db31ef07749dff5";
+
+
+        public static string? GetClaimFromToken(string token, string claimType)
+        {
+            token = token.Substring("Bearer ".Length);
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+
+            var result = jwtToken.Claims.FirstOrDefault(c => c.Type == claimType)?.Value;
+            return result;
+        }
     }
 }

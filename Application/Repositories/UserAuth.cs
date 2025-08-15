@@ -23,6 +23,7 @@ namespace Application.Repositories
         }
         public async Task<Response<JWTResponse>> SignUpUser(UserSignUpDto request)
         {
+
             // because this project is not real and has no real business logic or something
             // we actually don't need all kind of validations here 
             // validations such as checking existing valid token or other thnigs i don't have in mind right now

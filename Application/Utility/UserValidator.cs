@@ -24,21 +24,14 @@ namespace Application.Utility
 
             if (!string.IsNullOrWhiteSpace(request.Email))
             {
-                try
-                {
-                    var addr = new System.Net.Mail.MailAddress(request.Email);
-                    if (addr.Address != request.Email)
-                        return Response<JWTResponse>.Failure("InvalidEmail");
-                }
-                catch
-                {
+                if (request.Email.ValidateEmail())
                     return Response<JWTResponse>.Failure("InvalidEmail");
-                }
+                return Response<JWTResponse>.Failure("InvalidEmail");
             }
 
             if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
             {
-                if (!System.Text.RegularExpressions.Regex.IsMatch(request.PhoneNumber, @"^(?:\+989|09)\d{9}$"))
+                if (request.PhoneNumber.ValidatePhoneNumber())
                     return Response<JWTResponse>.Failure("InvalidPhoneNumber");
             }
 

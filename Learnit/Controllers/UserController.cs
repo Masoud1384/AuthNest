@@ -4,6 +4,7 @@ using Application.Repositories;
 using Application.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection.Metadata.Ecma335;
 
 namespace AuthNest.Controllers
 {
@@ -29,7 +30,12 @@ namespace AuthNest.Controllers
         [Route("UpdateUserInfo")]
         [Authorize]
         public async Task<Response<bool>> UpdateUserInfo([FromBody] UpdateUserDto request)
-            => await _userService.UpdateUser(request);   
+        {
+            var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+            request.UserName = !string.IsNullOrEmpty(authHeader) ? 
+                JWTHelper.GetClaimFromToken(authHeader, "unique_name") ?? string.Empty : string.Empty;
+            return await _userService.UpdateUser(request);
+        }
 
     }
 }

@@ -3,6 +3,7 @@ using Application.Dto.JWT;
 using Application.Utility;
 using Infrastructure;
 using Mapster;
+using AuthNest.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -28,11 +29,11 @@ builder.Services.AddAuthentication("Bearer")
         options.Events = new JwtBearerEvents
         {
             OnAuthenticationFailed = ctx => {
-                Console.WriteLine("Auth failed: " + ctx.Exception);
+                Console.WriteLine(ctx.Exception);
                 return Task.CompletedTask;
             },
             OnChallenge = ctx => {
-                Console.WriteLine($"Challenge: {ctx.Error} - {ctx.ErrorDescription}");
+                Console.WriteLine(ctx.Error +"------"+ ctx.ErrorDescription);
                 return Task.CompletedTask;
             }
         };
@@ -59,8 +60,8 @@ var app = builder.Build();
 app.UseRouting();
 app.Use(async (ctx, next) =>
 {
-    var auth = ctx.Request.Headers.Authorization.ToString();
-    Console.WriteLine($"[AUTH HEADER] => '{auth}'");
+    var token = ctx.Request.Headers.Authorization.ToString();
+    Console.WriteLine(token);
     await next();
 });
 
@@ -75,7 +76,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseAuthNestExceptionHandler();
 app.MapControllers();
 
 app.Run();

@@ -1,6 +1,7 @@
 ﻿using Application.Dto.User;
 using Application.IRepositories;
 using Application.Utility;
+using System.Net.Http.Headers;
 
 namespace Application.Repositories
 {
@@ -14,6 +15,7 @@ namespace Application.Repositories
         // just implement a simple logic 
         public async Task<Response<bool>> UpdateUser(UpdateUserDto data)
         {
+            
             var user = await _unitOfWork.UserDataAccess
                 .GetUserBy(t => t.UserName == data.UserName);
 
@@ -21,12 +23,19 @@ namespace Application.Repositories
                 return Response<bool>.Failure("UserNotFound");
 
             // there are better ways but this is the simplest one right now 
+
+            if (!data.PhoneNumber.ValidatePhoneNumber())
+                return Response<bool>.Failure("InvalidPhoneNumber");
+            if (!data.Email.ValidateEmail())
+                return Response<bool>.Failure("InvalidEmail");
+
+
             user.PhoneNumber = data.PhoneNumber;
             user.Email = data.Email;
 
             await _unitOfWork.UserDataAccess.UpdateUser(user);
             var result = await _unitOfWork.SaveAllChanges();
-            return result ? Response<bool>.Succeeded() : Response<bool>.Failure("SomethingWentWrong");
+            return result ? Response<bool>.Succeeded(true) : Response<bool>.Failure("SomethingWentWrong");
         }
     }
 }
