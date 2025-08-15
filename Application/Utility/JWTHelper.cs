@@ -10,7 +10,11 @@
                 str += new string('=', 4 - m);
             return Convert.FromBase64String(str);
         }
+        // placing the secret key here is intensly anti-pattern
+        // but since you may not access my env var and want to use the project 
+        // i guess it's ok to do this 
+        // this app is not built for production
         public static string GetSecretKey()
-            => Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? string.Empty;
+            => Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? "e7f456f567e09eee352f29ce95b0d02fe257afa06a6cbdde8db31ef07749dff5";
     }
 }
