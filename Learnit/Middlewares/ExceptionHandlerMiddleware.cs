@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Storage.Json;
+﻿ using Microsoft.EntityFrameworkCore.Storage.Json;
 using Newtonsoft.Json;
 
 namespace AuthNest.Middlewares
@@ -32,7 +32,6 @@ namespace AuthNest.Middlewares
 
                 context.Response.StatusCode = 500;
                 context.Response.ContentType = "application/json";
-
 
                 // in production env we are not supposed to log the error this way
                 await context.Response.WriteAsync(JsonConvert.SerializeObject(

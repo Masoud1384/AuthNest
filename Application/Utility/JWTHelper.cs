@@ -1,5 +1,4 @@
-﻿using Mapster.Utils;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 
 namespace Application.Utility
 {
